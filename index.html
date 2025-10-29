@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catálogo Herramientas Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --success: #34a853;
+      --whatsapp: #25d366;
+      --dark: #333;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --white: #fff;
+      --border: #e0e0e0;
+      --hover: #f0f7ff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Roboto', sans-serif; 
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.5;
+    }
+    .header {
+      background: var(--white);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    h1 { color: var(--primary); font-size: 2em; font-weight: 700; margin-bottom: 5px; }
+    .subtitle { color: var(--gray); font-size: 0.95em; }
+
+    .search-bar {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      width: 280px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 0.9em;
+      padding: 0 8px;
+    }
+    .search-bar::before {
+      content: 'search';
+      font-family: 'Material Icons', sans-serif;
+      color: var(--gray);
+      font-size: 1.2em;
+    }
+
+    .brands-bar {
+      background: var(--white);
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand-btn {
+      background: var(--white);
+      border: 1px solid var(--border);
+      color: var(--dark);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .brand-btn.active, .brand-btn:hover {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+
+    .container {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: 70vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .sidebar h3 {
+      padding: 0 20px 15px;
+      color: var(--primary);
+      font-size: 1.1em;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 15px;
+    }
+    .filter-item {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .filter-item:hover { background: var(--hover); }
+    .filter-item label {
+      display: flex;
+      align-items: center;
+      font-size: 0.95em;
+      color: var(--dark);
+    }
+    .filter-item input[type="checkbox"] {
+      margin-right: 12px;
+      accent-color: var(--primary);
+    }
+    .filter-item .count {
+      color: var(--gray);
+      font-size: 0.85em;
+      margin-left: auto;
+    }
+
+    .content {
+      flex-grow: 1;
+      padding: 20px;
+    }
+
+    .breadcrumbs {
+      padding: 10px 20px;
+      font-size: 0.9em;
+      color: var(--gray);
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .breadcrumbs a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .pdf-btn {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 16px;
+      font-size: 0.85em;
+      cursor: pointer;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .card {
+      background: var(--white);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+    }
+    .card:hover { 
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+    .card img { 
+      width: 100%; 
+      height: 180px; 
+      object-fit: cover; 
+      background: #f0f0f0; 
+    }
+    .info {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .name {
+      color: var(--dark);
+      font-weight: 600;
+      font-size: 1em;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .desc { 
+      color: var(--gray); 
+      font-size: 0.85em; 
+      margin-bottom: auto; 
+      line-height: 1.4; 
+    }
+    .price {
+      color: var(--success);
+      font-weight: 700;
+      font-size: 1.1em;
+      text-align: center;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+
+    /* WHATSAPP EN TARJETA */
+    .whatsapp-small {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .whatsapp-small a {
+      display: inline-flex;
+      align-items: center;
+      background: var(--whatsapp);
+      color: white;
+      font-size: 0.75em;
+      padding: 4px 10px;
+      border-radius: 14px;
+      text-decoration: none;
+      gap: 4px;
+      transition: background 0.2s;
+    }
+    .whatsapp-small a:hover {
+      background: #1ebe57;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--gray);
+      font-size: 1.1em;
+      grid-column: 1 / -1;
+    }
+
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow: auto; }
+    .modal-content { background: var(--white); margin: 5% auto; padding: 25px; width: 90%; max-width: 600px; border-radius: 8px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .close { position: absolute; top: 10px; right: 15px; font-size: 24px; font-weight: bold; color: var(--gray); cursor: pointer; }
+    .close:hover { color: var(--dark); }
+    .specs { white-space: pre-line; line-height: 1.6; color: var(--gray); font-size: 0.9em; background: var(--light); padding: 15px; border-radius: 6px; border-left: 3px solid var(--primary); margin-top: 15px; }
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      background: var(--whatsapp);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 15px;
+      gap: 8px;
+    }
+    .whatsapp-btn:hover { background: #1ebe57; }
+
+    @media (max-width: 1200px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) { 
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .container { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+      .search-bar { position: static; margin: 10px auto; width: 90%; }
+    }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Herramientas Premium</h1>
+    <div class="subtitle">Catálogo 2025 • Precios Minoristas</div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Buscar producto, marca o categoría...">
+    </div>
+  </div>
+
+  <div class="brands-bar" id="brands-bar"></div>
+
+  <div class="container">
+    <div class="sidebar">
+      <h3>Categorías</h3>
+      <ul class="filter-list" id="categoria-filters"></ul>
+    </div>
+
+    <div class="content">
+      <div class="breadcrumbs" id="breadcrumbs">
+        <span>Todos los productos</span>
+        <button class="pdf-btn" id="pdf-btn">Descargar PDF</button>
+      </div>
+      <div id="loading" class="loading">Cargando productos...</div>
+      <div id="grid" class="grid"></div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close">×</span>
+      <h2 id="modal-name"></h2>
+      <p id="modal-desc"></p>
+      <p id="modal-price" class="price"></p>
+      <a href="#" id="whatsapp-link" class="whatsapp-btn" target="_blank">
+        Consultar por WhatsApp
+      </a>
+      <hr style="margin: 20px 0;">
+      <h3>Especificaciones Técnicas</h3>
+      <p id="modal-specs" class="specs"></p>
+    </div>
+  </div>
+
+  <script>
+    // CAMBIA SOLO ESTA LÍNEA PARA MODIFICAR EL NÚMERO
+    const WHATSAPP_NUMBER = "5493534232143";  // SIN + NI GUIONES
+
+    const { jsPDF } = window.jspdf;
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQNNqX59bBJ2sZJbNSUokFmZW0XuYA15XCmxfolrdTlcL82BrwJNaKRh_N7FgDbvNkr6ufjA633nCHx/pub?gid=0&single=true&output=csv';
+    const PROXY = 'https://images.weserv.nl/?url=';
+    const modal = document.getElementById('modal');
+    const closeBtn = document.querySelector('.close');
+    const searchInput = document.getElementById('search-input');
+    const pdfBtn = document.getElementById('pdf-btn');
+    const whatsappLink = document.getElementById('whatsapp-link');
+    let allProducts = [];
+    let filteredProducts = [];
+
+    // FUNCIÓN PARA GENERAR ENLACE WHATSAPP
+    function getWhatsAppLink(product) {
+      const mensaje = `¡Hola! Quiero consultar por el producto: ${product.nombre} - $${product.precio.toLocaleString('es-AR')}`;
+      return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+    }
+
+    fetch(CSV_URL)
+      .then(r => r.text())
+      .then(csv => {
+        const rows = csv.split('\n').slice(1).filter(r => r.trim());
+        allProducts = rows.map(row => {
+          const cols = parseCSVLine(row);
+          if (cols.length < 9) return null;
+
+          const fullPath = cols[3] || '';
+          const path = fullPath.split('\\').map(c => c.trim()).filter(c => c);
+          const categoriaSimple = path[path.length - 1] || 'Sin categoría';
+
+          return {
+            id: cols[0],
+            img: cols[1],
+            marca: cols[2] || 'Sin marca',
+            path: path,
+            nombre: cols[4] || 'Sin nombre',
+            desc: cols[5] || '',
+            specs: (cols[6] || '').replace(/\\n/g, '\n'),
+            precio: parseInt((cols[7] || '0').replace(/\D/g, '')) || 0,
+            categoriaSimple: categoriaSimple
+          };
+        }).filter(p => p);
+
+        filteredProducts = [...allProducts];
+        renderBrandsBar();
+        renderFilters();
+        renderProducts(filteredProducts);
+        document.getElementById('loading').style.display = 'none';
+        setupSearch();
+        setupPDF();
+      });
+
+    function renderBrandsBar() {
+      const marcas = [...new Set(allProducts.map(p => p.marca))].sort();
+      const bar = document.getElementById('brands-bar');
+      bar.innerHTML = '';
+
+      const allBtn = createBrandBtn('Todas las marcas', true);
+      bar.appendChild(allBtn);
+
+      marcas.forEach(m => bar.appendChild(createBrandBtn(m)));
+    }
+
+    function createBrandBtn(text, active = false) {
+      const btn = document.createElement('button');
+      btn.className = `brand-btn ${active ? 'active' : ''}`;
+      btn.textContent = text;
+      btn.onclick = () => {
+        document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+      };
+      return btn;
+    }
+
+    function renderFilters() {
+      const categorias = [...new Set(allProducts.map(p => p.categoriaSimple))].sort();
+      const catList = document.getElementById('categoria-filters');
+      catList.innerHTML = '';
+
+      categorias.forEach(c => {
+        const li = document.createElement('li');
+        li.className = 'filter-item';
+        li.innerHTML = `
+          <label>
+            <input type="checkbox" data-type="categoria" data-value="${c}">
+            ${c}
+            <span class="count">(${allProducts.filter(q => q.categoriaSimple === c).length})</span>
+          </label>
+        `;
+        li.querySelector('input').addEventListener('change', applyFilters);
+        catList.appendChild(li);
+      });
+    }
+
+    function setupSearch() {
+      searchInput.addEventListener('input', () => {
+        const term = searchInput.value.toLowerCase().trim();
+        applyFilters(term);
+      });
+    }
+
+    function applyFilters(searchTerm = '') {
+      const checked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
+      const categorias = checked.filter(c => c.dataset.type === 'categoria').map(c => c.dataset.value);
+      const activeBrand = document.querySelector('.brand-btn.active').textContent;
+      const marca = activeBrand !== 'Todas las marcas' ? activeBrand : '';
+
+      filteredProducts = allProducts.filter(p => {
+        const matchMarca = !marca || p.marca === marca;
+        const matchCat = categorias.length === 0 || categorias.includes(p.categoriaSimple);
+        const matchSearch = !searchTerm || 
+          p.nombre.toLowerCase().includes(searchTerm) ||
+          p.marca.toLowerCase().includes(searchTerm) ||
+          p.categoriaSimple.toLowerCase().includes(searchTerm);
+        return matchMarca && matchCat && matchSearch;
+      });
+
+      renderProducts(filteredProducts);
+      updateBreadcrumbs(marca, categorias);
+    }
+
+    function updateBreadcrumbs(marca, categorias) {
+      const parts = [];
+      if (marca && marca !== 'Todas las marcas') parts.push(marca);
+      if (categorias.length > 0) parts.push(...categorias);
+      const text = parts.length > 0 ? parts.join(' > ') : 'Todos los productos';
+      document.querySelector('#breadcrumbs span').textContent = text;
+    }
+
+    function renderProducts(products) {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+
+      if (products.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; color:#666; grid-column:1/-1; padding: 40px;">No se encontraron productos.</p>';
+        return;
+      }
+
+      products.forEach(p => {
+        let imgUrl = p.img ? PROXY + encodeURIComponent(p.img) + '&w=800&h=600&fit=cover' : 'https://via.placeholder.com/300?text=Sin+Foto';
+        const waLink = getWhatsAppLink(p);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/300?text=Sin+Foto'">
+          <div class="info">
+            <div class="name">${p.nombre}</div>
+            <div class="desc">${p.desc}</div>
+            <div class="price">$${p.precio.toLocaleString('es-AR')}</div>
+            <div class="whatsapp-small">
+              <a href="${waLink}" target="_blank">
+                WhatsApp
+              </a>
+            </div>
+          </div>
+        `;
+
+        card.onclick = (e) => {
+          if (e.target.closest('.whatsapp-small')) return;
+          openModal(p);
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function openModal(p) {
+      document.getElementById('modal-name').textContent = p.nombre;
+      document.getElementById('modal-desc').textContent = p.desc;
+      document.getElementById('modal-price').textContent = `$${p.precio.toLocaleString('es-AR')}`;
+      document.getElementById('modal-specs').textContent = p.specs;
+
+      whatsappLink.href = getWhatsAppLink(p);
+
+      modal.style.display = 'block';
+    }
+
+    function setupPDF() {
+      pdfBtn.onclick = () => {
+        const doc = new jsPDF();
+        let y = 20;
+
+        doc.setFontSize(16);
+        doc.text('Catálogo Herramientas Premium', 105, y, { align: 'center' });
+        y += 15;
+        doc.setFontSize(10);
+        doc.text(`Generado el: ${new Date().toLocaleDateString('es-AR')}`, 105, y, { align: 'center' });
+        y += 20;
+
+        filteredProducts.forEach((p, i) => {
+          if (y > 270) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.setFontSize(12);
+          doc.text(`${p.nombre}`, 20, y);
+          y += 7;
+          doc.setFontSize(10);
+          doc.text(`Marca: ${p.marca} | Categoría: ${p.categoriaSimple}`, 20, y);
+          y += 7;
+          doc.text(`Precio: $${p.precio.toLocaleString('es-AR')}`, 20, y);
+          y += 15;
+        });
+
+        doc.save('catalogo-herramientas.pdf');
+      };
+    }
+
+    closeBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') inQuotes = !inQuotes;
+        else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else current += char;
+      }
+      result.push(current.trim());
+      return result;
+    }
+  </script>
+</body>
+</html>
